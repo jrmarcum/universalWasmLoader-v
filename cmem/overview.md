@@ -141,10 +141,14 @@ the SDK `lib/`).
 
 The version in `v.mod` (the `version:` field) is the **single source of truth**. Three scripts, run in
 order, keep the git tag, GitHub Release, and VPM listing consistent with it. Each ships in **two
-equivalent forms** (same flags/guards/behavior): a Bash `.sh` and a cross-platform Nushell `.nu`
-(needs `nu` ≥0.113; runs on Windows/macOS/Linux without Git Bash). Use whichever the machine has —
-e.g. `nu scripts/release.nu` or `bash scripts/release.sh`. `fetch-wasmtime.sh` and the `zigcc`
-wrappers stay as they are (dev setup, not part of the release toolchain).
+equivalent forms** (same flags/guards/behavior — including error messages and exit codes): a Bash
+`.sh` and a cross-platform Nushell `.nu` (needs `nu` ≥0.113; runs on Windows/macOS/Linux without Git
+Bash). Use whichever the machine has — e.g. `nu scripts/release.nu` or `bash scripts/release.sh`.
+`fetch-wasmtime.sh` and the `zigcc` wrappers stay as they are (dev setup, not part of the release
+toolchain). **Parity note (2026-06-19):** `bump-version.nu` takes its `spec` as an *optional*
+positional and checks for it explicitly, so a missing spec prints the same friendly
+`error: missing bump spec …` and exits `2` as the `.sh` form — rather than Nushell's bare
+`missing_positional` parser error with a different exit code.
 
 1. **`scripts/bump-version.{sh,nu}` `<major|minor|patch|X.Y.Z>`** — rewrites the `version:` field in
    `v.mod` and commits the isolated bump. Guards: clean tree, strictly-greater target, no pre-existing

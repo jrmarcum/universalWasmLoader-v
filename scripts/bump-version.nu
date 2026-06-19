@@ -32,10 +32,17 @@ def semver-gt [a: list, b: list]: nothing -> bool {
 }
 
 def main [
-  spec: string      # major | minor | patch | explicit X.Y.Z
+  spec?: string     # major | minor | patch | explicit X.Y.Z
   --no-commit       # edit v.mod only; don't commit
   --dry-run         # print the new version + planned actions; change nothing
 ] {
+  # Match bump-version.sh: a friendly message + exit 2 on a missing spec, rather
+  # than Nushell's bare "missing positional" parser error.
+  if $spec == null {
+    print -e "error: missing bump spec (major|minor|patch|X.Y.Z). See --help."
+    exit 2
+  }
+
   let cur = (read-version)
   if not ($cur =~ '^[0-9]+\.[0-9]+\.[0-9]+$') {
     print -e $"error: current version in v.mod is not plain semver: '($cur)'"
