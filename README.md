@@ -108,4 +108,4 @@ the wasmtime headers, keeping them out of V's translation unit.
 
 ## License
 
-MIT.
+MIT — see [LICENSE](LICENSE). Copyright (c) 2026 Jon Marcum.
