@@ -88,11 +88,12 @@ the wasmtime headers, keeping them out of V's translation unit.
 
 - **Choose a C compiler** (V's default `tcc` cannot link the wasmtime import
   library):
-  - **Zig** (`scripts/zigcc.bat`) — needs `zig` on `PATH`, plus `bash`+`sed`
-    (e.g. Git Bash) for the wrapper. The wrapper compiles via `zig cc`, forces
-    the `x86_64-windows-gnu` target, and strips V's hardcoded `-Wl,-stack=` flag
-    (V emits it in MSVC form, which Zig's bundled `lld` rejects). On Linux/macOS
-    `zig cc` can usually be used directly without the wrapper.
+  - **Zig** (`scripts/zigcc.bat`) — needs only `zig` on `PATH` (the wrapper
+    dispatches to PowerShell, `scripts/zigcc.ps1`; no Git Bash required). It
+    compiles via `zig cc`, forces the `x86_64-windows-gnu` target, and strips
+    V's hardcoded `-Wl,-stack=` flag (V emits it in MSVC form, which Zig's
+    bundled `lld` rejects). On Linux/macOS use `scripts/zigcc.sh` (or `zig cc`
+    directly).
   - **MinGW gcc** (`-cc gcc`) — needs a MinGW gcc on `PATH`.
 - **`wasmtime.dll` must be findable at runtime** — copy
   `vendor/.../lib/wasmtime.dll` next to your binary (or the repo root for
