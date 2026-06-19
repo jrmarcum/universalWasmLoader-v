@@ -2,7 +2,7 @@
 // Run from the repo root:  v run examples/adder.v
 module main
 
-import universal_wasm_loader as uwl
+import uwl
 
 // Native-looking wrapper over the WASM `add` export.
 fn adder(m &uwl.Module, a int, b int) !int {

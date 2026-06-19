@@ -12,11 +12,12 @@ native V values and `!`/`or` error handling. See [`README.md`](README.md) for us
 
 ## Quick orientation
 
-- `universal_wasm_loader/uwl.v` — the binding (public `Module` API, `Arg` builders, the `#flag`
-  compile/link directives, and the `C.uwlv_*` FFI declarations).
-- `universal_wasm_loader/uwl_shim.{c,h}` — the C shim: compiles the loader and exposes a primitive
-  `uwlv_*` surface (the loader's value constructors are `static inline` / awkward to pass by value).
-- `universal_wasm_loader/universal_wasm_loader.h` — vendored copy of the upstream C loader.
+- `uwl/uwl.v` — the binding (public `Module` API, `Arg` builders, the `#flag` compile/link directives,
+  and the `C.uwlv_*` FFI declarations). Declares `module uwl`.
+- `uwl/uwl_shim.{c,h}` — the C shim: compiles the loader and exposes a primitive `uwlv_*` surface (the
+  loader's value constructors are `static inline` / awkward to pass by value).
+- `uwl/universal_wasm_loader.h` — vendored copy of the upstream C loader (the C header keeps its
+  upstream filename; the V module directory is `uwl/`).
 - `scripts/fetch-wasmtime.sh` — fetches the wasmtime C API SDK into `vendor/` (gitignored).
 - `scripts/zigcc.{bat,ps1,sh}` — Zig-as-C-compiler wrapper (V's default `tcc` can't link wasmtime).
 - `scripts/bump-version.{sh,nu}` / `release.{sh,nu}` / `publish.{sh,nu}` — the release toolchain

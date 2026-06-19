@@ -1,6 +1,6 @@
 // Idiomatic V binding for the Universal WASM Loader.
 //
-//   import universal_wasm_loader as uwl
+//   import uwl
 //
 //   m := uwl.import_module('examples/math_50.wasm')!
 //   defer { m.free() }
@@ -8,12 +8,12 @@
 //
 // Values cross the boundary through a tiny C shim (uwl_shim.c); a companion
 // `.wit` next to the `.wasm` is required for typed calls.
-module universal_wasm_loader
+module uwl
 
 #flag -Dstatic_assert=_Static_assert
-#flag -I @VMODROOT/universal_wasm_loader
+#flag -I @VMODROOT/uwl
 #flag -I @VMODROOT/vendor/wasmtime-v45.0.2-x86_64-mingw-c-api/include
-#flag @VMODROOT/universal_wasm_loader/uwl_shim.c
+#flag @VMODROOT/uwl/uwl_shim.c
 #flag @VMODROOT/vendor/wasmtime-v45.0.2-x86_64-mingw-c-api/lib/libwasmtime.dll.a
 #flag -lws2_32 -lbcrypt -luserenv -lntdll -lole32 -lShlwapi -ladvapi32 -lkernel32 -luuid
 #include "uwl_shim.h"

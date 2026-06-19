@@ -13,7 +13,7 @@ wrapper over it (a small C shim + a V module) — built on the
 ## Quick start
 
 ```v
-import universal_wasm_loader as uwl
+import uwl
 
 m := uwl.import_module('examples/math_50.wasm')!
 defer { m.free() }
@@ -77,7 +77,7 @@ Errors propagate as V results (`!`), so use `!` or `or { ... }`.
 
 ## How it works
 
-`universal_wasm_loader/uwl_shim.{h,c}` is a tiny C shim that compiles the loader
+`uwl/uwl_shim.{h,c}` is a tiny C shim that compiles the loader
 and exposes a primitive-only surface (`uwlv_*`). It exists because the loader's
 value constructors are `static inline` (not linkable) and `uwl_val_t` is awkward
 to pass by value across V's FFI — the shim marshals through a flat `uwlv_arg`
@@ -100,7 +100,7 @@ the wasmtime headers, keeping them out of V's translation unit.
   `v run`), or add that `lib` directory to `PATH`.
 - The binding links the wasmtime **import library** (`libwasmtime.dll.a`), not the
   static archive (which pulls in the Rust std unwinder).
-- The vendored C loader header is `universal_wasm_loader/universal_wasm_loader.h`;
+- The vendored C loader header is `uwl/universal_wasm_loader.h`;
   keep it in sync with the upstream
   [`universalWasmLoader-c`](https://github.com/jrmarcum/universalWasmLoader-c) release you target.
 - Host import callbacks are not yet exposed from V (pure-compute / library

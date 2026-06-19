@@ -14,25 +14,30 @@ module) on top.
   [wasmtime C API](https://docs.wasmtime.dev/c-api/) (**v45.0.2**) as the WASM engine.
 - **What it gives V callers:** native V argument/result values, `!`/`or` result-based error handling
   (no out-params surfaced to V), and a small typed call surface — no manual `uwl_val_t` boxing.
-- **Distribution:** a V module (`v.mod` name `universal_wasm_loader`, v1.0.0, MIT) published via
-  **VPM** (the V package manager, https://vpm.vlang.io). The MIT `LICENSE` file ships with the repo;
-  README's License section links it.
+- **Distribution:** a V module (`v.mod` name `uwl`, v1.0.0, MIT) published via **VPM** (the V package
+  manager, https://vpm.vlang.io). The MIT `LICENSE` file ships with the repo; README's License section
+  links it. **Naming note:** the VPM registry name MUST be letters/digits/dots only (no underscores,
+  2–35 chars; see `is_valid_mod_name` in `vlang/vpm`), so the package is `uwl` (full registry name
+  `jrmarcum.uwl`, installed via `v install jrmarcum.uwl`). The V module is correspondingly `module uwl`
+  in the `uwl/` directory and imported as `import uwl` — matching how the `-zig` sibling exposes its
+  importable module as `uwl` even though its package name is longer.
 
 ## Current state — IMPLEMENTED v1 (2026-06-19)
 
 Working tree:
 
-- `universal_wasm_loader/uwl.v` — the binding (public API + `#flag` compile/link directives + the
+- `uwl/uwl.v` — the binding (`module uwl`; public API + `#flag` compile/link directives + the
   `C.uwlv_*` FFI declarations). Marshals V `Arg` values into a flat `C.uwlv_arg` array and reads
   results back through out-params.
-- `universal_wasm_loader/uwl_shim.c` — the C shim: `#define UWL_IMPLEMENTATION` + includes the loader
-  header to compile its body, and implements the primitive-only `uwlv_*` surface (import/free/call)
-  by marshalling the `uwlv_arg` array into `uwl_val_t` and back.
-- `universal_wasm_loader/uwl_shim.h` — the self-contained V-facing C header. Deliberately does **not**
-  include `universal_wasm_loader.h` or `wasm.h`, so V parses it into its own translation unit without
-  the wasmtime headers.
-- `universal_wasm_loader/universal_wasm_loader.h` — **vendored copy** of the upstream C single-header
-  loader. Keep in sync with the `universalWasmLoader-c` release being targeted.
+- `uwl/uwl_shim.c` — the C shim: `#define UWL_IMPLEMENTATION` + includes the loader header to compile
+  its body, and implements the primitive-only `uwlv_*` surface (import/free/call) by marshalling the
+  `uwlv_arg` array into `uwl_val_t` and back.
+- `uwl/uwl_shim.h` — the self-contained V-facing C header. Deliberately does **not** include
+  `universal_wasm_loader.h` or `wasm.h`, so V parses it into its own translation unit without the
+  wasmtime headers.
+- `uwl/universal_wasm_loader.h` — **vendored copy** of the upstream C single-header loader (keeps its
+  upstream filename inside the `uwl/` module dir). Keep in sync with the `universalWasmLoader-c`
+  release being targeted.
 - `examples/adder.v` — the runnable example (`v run examples/adder.v`). `examples/math_50.wasm` +
   `math_50.wit` are the reference fixture.
 - `scripts/fetch-wasmtime.sh` — downloads the wasmtime C API SDK into `vendor/` (gitignored).
@@ -50,8 +55,8 @@ Build environment used for v1: V 0.5.1 + Zig 0.16.0 (as the C compiler) + wasmti
 
 ## Public API surface (implemented)
 
-All in `universal_wasm_loader/uwl.v`. Idiomatic V over the C loader's explicit `uwl_call` core,
-reached through the `uwlv_*` shim.
+All in `uwl/uwl.v`. Idiomatic V over the C loader's explicit `uwl_call` core, reached through the
+`uwlv_*` shim.
 
 - **`uwl.import_module(path string) !Module`** — load a `.wasm`; its companion `.wit` is auto-detected,
   a `@N` path suffix pins the version. Returns an error (the C error string, freed after copying) on
@@ -140,7 +145,7 @@ wrappers stay as they are (dev setup, not part of the release toolchain).
 3. **`scripts/publish.{sh,nu}`** — the deliberate VPM step, decoupled from `release`. **VPM has no
    CLI/push publish command**: a module is registered **once** by submitting its git repo URL at
    https://vpm.vlang.io/new (no auth token, no per-version upload), after which `v install
-   jrmarcum.universal_wasm_loader` clones the repo and `v update` pulls new commits. So this script is
+   jrmarcum.uwl` clones the repo and `v update` pulls new commits. So this script is
    a **clearly-logged no-op**: it reads the version, verifies the `v<version>` tag exists locally + on
    `origin` (so you "publish" exactly what was released), then prints the one-time registration
    instructions and that updates resolve off the pushed repo. Kept present (both forms) so the
@@ -152,12 +157,14 @@ modules — resolves the package from the git repository itself. There is nothin
 the pushed tag/commit *is* the published artifact once the repo is registered. The script exists to
 keep the release/publish ritual and shape uniform with the sibling ports.
 
-**v1.0.0 status (2026-06-19):** version `1.0.0` set in `v.mod`. Tagged `v1.0.0` at HEAD locally; the
-tag is **not yet pushed** and **no GitHub Release** exists yet (pending owner confirmation). Outward-
-facing steps that remain (owner-gated): push branch, push tag, create the GitHub Release via
-`release`, and — if not already done — register the repo once at vpm.vlang.io (`publish` is otherwise
-a no-op). The tag is what a tag/repo-resolving registry (VPM, like Go) uses; there is no separate
-package upload for this ecosystem.
+**v1.0.0 status (2026-06-19):** version `1.0.0` set in `v.mod`. The V module + VPM package name is
+`uwl` (renamed from `universal_wasm_loader` because VPM rejects underscores — see the Naming note
+above). Tagged `v1.0.0` at HEAD locally (the tag was moved onto the rename commit while still
+unpushed, so the released state carries the VPM-valid name); the tag is **not yet pushed** and **no
+GitHub Release** exists yet (pending owner confirmation). Outward-facing steps that remain
+(owner-gated): push branch, push tag, create the GitHub Release via `release`, and register the repo
+once at https://vpm.vlang.io/new (`publish` is otherwise a no-op). The tag is what a tag/repo-resolving
+registry (VPM, like Go) uses; there is no separate package upload for this ecosystem.
 
 ## Known gaps / not yet done
 
@@ -169,9 +176,8 @@ package upload for this ecosystem.
   Pure-compute / library modules work; modules needing host imports are not supported from V.
 - **String/aggregate args beyond flat scalars + strings** rely entirely on the C loader; there is no
   V-side validation beyond the `Arg` builder `kind` tags.
-- **Vendored header drift:** `universal_wasm_loader/universal_wasm_loader.h` is a manual copy of
-  upstream `universalWasmLoader-c`; there is no automated sync — bump it deliberately per targeted
-  release.
+- **Vendored header drift:** `uwl/universal_wasm_loader.h` is a manual copy of upstream
+  `universalWasmLoader-c`; there is no automated sync — bump it deliberately per targeted release.
 - **C-compiler requirement:** V's default `tcc` cannot link wasmtime; a build needs Zig (via the
   `zigcc` wrapper) or MinGW gcc. The `release` build step depends on one being available (or
   `--no-build`).

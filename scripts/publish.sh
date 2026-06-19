@@ -5,7 +5,7 @@
 # VPM has NO upload/CLI publish command. Like Go modules, VPM resolves a package
 # from the git repository itself: a module is registered ONCE by submitting its
 # git repo URL at https://vpm.vlang.io/new (no auth token, no per-version
-# upload). After that, `v install jrmarcum.universal_wasm_loader` clones the repo
+# upload). After that, `v install jrmarcum.uwl` clones the repo
 # and `v update` pulls new commits. There is nothing to upload per release — the
 # pushed tag/commit IS the published artifact once the repo is registered.
 #
@@ -61,7 +61,7 @@ VERSION="$(grep -oE "version:[[:space:]]*'[^']+'" v.mod \
 [ -n "$VERSION" ] || { echo "error: could not read version from v.mod" >&2; exit 1; }
 TAG="v$VERSION"
 MODULE="$(grep -oE "name:[[:space:]]*'[^']+'" v.mod | grep -oE "'[^']+'" | head -1 | tr -d "'")"
-echo "Publishing $TAG to VPM (module: ${MODULE:-universal_wasm_loader})"
+echo "Publishing $TAG to VPM (module: ${MODULE:-uwl})"
 
 # --- Preflight: clean tree --------------------------------------------------
 if [ "$ALLOW_DIRTY" -eq 0 ] && [ -n "$(git status --porcelain)" ]; then
@@ -89,8 +89,8 @@ How VPM publishing actually works (like Go modules — it resolves off the repo)
   1. ONE-TIME registration: submit the repo URL at https://vpm.vlang.io/new
        repo: $ORIGIN_URL
      Once registered the module is installable as:
-       v install ${MODULE:-jrmarcum.universal_wasm_loader}
-       (VPM names it <author>.<module>, e.g. jrmarcum.universal_wasm_loader)
+       v install <your-github-username>.${MODULE:-uwl}
+       (VPM prepends your GitHub username, e.g. jrmarcum.${MODULE:-uwl})
   2. UPDATES: there is no per-version upload. Consumers get new code by
        v update <module>
      which pulls the repo. So pushing $TAG (done by scripts/release.sh) is all

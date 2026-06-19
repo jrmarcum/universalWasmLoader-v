@@ -21,8 +21,8 @@ never copy internal decision logs into it.
 
 ### The "look for code issues" trigger (binding on every agent)
 When the owner says **"look for code issues"** (or "code audit" / "audit the code"), perform a
-comprehensive audit of the V binding (`universal_wasm_loader/uwl.v`) and its C-link glue
-(`universal_wasm_loader/uwl_shim.c`, `uwl_shim.h`, the `#flag` link lines in `uwl.v`) for: (1)
+comprehensive audit of the V binding (`uwl/uwl.v`) and its C-link glue
+(`uwl/uwl_shim.c`, `uwl_shim.h`, the `#flag` link lines in `uwl.v`) for: (1)
 workarounds / temporary hacks; (2) dead code; (3) bugs (wrong `kind` discriminant in the `Arg`
 builders or the shim `switch`, leaked C-owned strings, missing `uwlv_free_str`/`uwl_val_free`, missing
 `nil` checks on `&char`/handle returns, unsafe pointer lifetimes across the FFI boundary); and (4)
