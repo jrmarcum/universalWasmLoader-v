@@ -28,7 +28,8 @@ Working tree:
 
 - `uwl/uwl.v` — the binding (`module uwl`; public API + `#flag` compile/link directives + the
   `C.uwlv_*` FFI declarations). Marshals V `Arg` values into a flat `C.uwlv_arg` array and reads
-  results back through out-params.
+  results back through out-params. Every public symbol carries a doc comment (see "Documentation
+  conventions" below).
 - `uwl/uwl_shim.c` — the C shim: `#define UWL_IMPLEMENTATION` + includes the loader header to compile
   its body, and implements the primitive-only `uwlv_*` surface (import/free/call) by marshalling the
   `uwlv_arg` array into `uwl_val_t` and back.
@@ -52,6 +53,18 @@ Working tree:
 
 Build environment used for v1: V 0.5.1 + Zig 0.16.0 (as the C compiler) + wasmtime C API **v45.0.2**
 `x86_64-mingw`.
+
+## Documentation conventions (added 2026-06-19)
+
+`uwl/uwl.v` is documented for clarity in a way familiar to the TypeScript sibling's contributors:
+every public symbol (the `Module`/`Arg` types, `import_module`, `free`, the six arg builders, and the
+`call_i32/i64/f64/bool/str` family) and the internal helpers (`invoke`, `take_err`) carry a doc
+comment. Each comment keeps **V's name-prefixed first line** (so `v doc` renders it) and then adds
+**JSDoc-style `@param` / `@returns` / `@error` notations** for the parameters, result, and failure
+mode. The raw `C.uwlv_*` FFI block is grouped under a banner comment describing it as the only
+cross-into-C surface (the V equivalent of a hand-written `.d.ts`), and the `k_*` discriminants and
+struct fields have inline notes. **`v fmt` is authoritative** — the file is kept `v fmt`-clean (run
+`v fmt -w uwl/uwl.v`; `v fmt -verify` passes). `examples/adder.v` follows the same comment style.
 
 ## Public API surface (implemented)
 
@@ -159,11 +172,15 @@ keep the release/publish ritual and shape uniform with the sibling ports.
 
 **v1.0.0 status (2026-06-19):** version `1.0.0` set in `v.mod`. The V module + VPM package name is
 `uwl` (renamed from `universal_wasm_loader` because VPM rejects underscores — see the Naming note
-above). Tagged `v1.0.0` at HEAD locally (the tag was moved onto the rename commit while still
-unpushed, so the released state carries the VPM-valid name); the tag is **not yet pushed** and **no
-GitHub Release** exists yet (pending owner confirmation). Outward-facing steps that remain
-(owner-gated): push branch, push tag, create the GitHub Release via `release`, and register the repo
-once at https://vpm.vlang.io/new (`publish` is otherwise a no-op). The tag is what a tag/repo-resolving
+above). Tagged `v1.0.0` at HEAD locally; while the tag is still unpushed it has been moved forward to
+keep pace with release-readying commits (the `uwl` rename and the API doc-comment pass), so the
+released state carries the VPM-valid name and the documented API. **Remote state:** the owner pushed
+`main` through the rename commit (`447db51`) to `origin` (so the `uwl` name is live on GitHub for VPM
+registration); the later doc-comment commit is local-only and fast-forwards cleanly. The `v1.0.0` tag
+is **not on the remote** and **no GitHub Release** exists yet (pending owner confirmation). Outward-
+facing steps that remain (owner-gated): push the remaining commit(s), push the `v1.0.0` tag, create the
+GitHub Release via `release`, and register the repo once at https://vpm.vlang.io/new (`publish` is
+otherwise a no-op). The tag is what a tag/repo-resolving
 registry (VPM, like Go) uses; there is no separate package upload for this ecosystem.
 
 ## Known gaps / not yet done

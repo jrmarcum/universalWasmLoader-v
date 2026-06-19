@@ -4,7 +4,13 @@ module main
 
 import uwl
 
-// Native-looking wrapper over the WASM `add` export.
+// adder is a native-looking V wrapper over the module's WASM `add` export — it
+// hides the uwl.i32(...) boxing behind a plain (int, int) -> int signature.
+// @param m  a loaded module exporting `add: func(s32, s32) -> s32`
+// @param a  first addend
+// @param b  second addend
+// @returns  a + b, computed inside the WASM module
+// @error    propagates any call failure from the loader
 fn adder(m &uwl.Module, a int, b int) !int {
 	return m.call_i32('add', uwl.i32(a), uwl.i32(b))
 }
