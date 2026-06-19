@@ -1,0 +1,14 @@
+# wasmtime C API SDK — fetched on demand, not committed
+/vendor/
+
+# wasmtime.dll staged for runtime
+/wasmtime.dll
+
+# V build artifacts
+*.exe
+*.exe~
+*.pdb
+*.o
+*.obj
+/examples/adder
+main

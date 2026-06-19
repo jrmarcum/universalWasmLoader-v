@@ -1,0 +1,7 @@
+Module {
+	name: 'universal_wasm_loader'
+	description: 'Idiomatic V binding for the Universal WASM Loader (over the C single-header loader).'
+	version: '1.0.0'
+	license: 'MIT'
+	dependencies: []
+}
